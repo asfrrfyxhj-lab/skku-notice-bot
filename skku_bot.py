@@ -84,9 +84,8 @@ def main():
     COLOR_AICON = 16761035
 
     # 1. 성대 메인
-    keywords_main = ["장학", "AI", "대학원", "근로", "참여자", "인공지능", "성적", "수강신청"]
     process_site("https://www.skku.edu/skku/campus/skk_comm/notice01.do", 
-                 "last_notice_main.txt", "성대메인", WEBHOOK_MAIN, COLOR_MAIN, keywords_main)
+                 "last_notice_main.txt", "성대메인", none)
     
     # 2. AICON (전체 공지)
     process_site("https://aicon.skku.edu/aicon/notice.do", 
