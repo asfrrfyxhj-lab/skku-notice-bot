@@ -30,8 +30,17 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          # 최신 상태를 먼저 가져와서 합칩니다 (rebase 방식)
-          git pull --rebase origin main  
+          
+          # 1. 새로 생성/수정된 파일들을 먼저 내역에 추가합니다.
           git add last_notice_*.txt
+          
+          # 2. 추가된 내용을 '내 컴퓨터(서버)'에 먼저 저장(확정)합니다. 
+          # 수정사항이 없으면 그냥 종료하도록 || exit 0 를 붙입니다.
           git commit -m "Update notice IDs" || exit 0
+          
+          # 3. 이제 확정된 내역이 있으니, 서버의 최신 내역을 가져와서 내 것 뒤에 붙입니다.
+          # 이제는 파일이 '추적 중'인 상태라 충돌 없이 잘 합쳐집니다.
+          git pull --rebase origin main
+          
+          # 4. 합쳐진 최종본을 서버로 올립니다.
           git push
