@@ -16,6 +16,12 @@ jobs:
           python-version: '3.11'
       - name: Install dependencies
         run: pip install requests beautifulsoup4
+      - name: List files (Check if files exist)
+        run: ls -R  # 서버에 있는 모든 파일 목록을 출력해줌
+      - name: Run Bot
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: python skku_bot.py
       - name: Run Bot
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }} # 비밀 주소 연결
