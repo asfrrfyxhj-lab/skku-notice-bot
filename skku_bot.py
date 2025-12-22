@@ -85,7 +85,7 @@ def main():
 
     # 1. 성대 메인
     process_site("https://www.skku.edu/skku/campus/skk_comm/notice01.do", 
-                 "last_notice_main.txt", "성대메인", none)
+                 "last_notice_main.txt", "성대메인", WEBHOOK_MAIN, COLOR_MAIN, None)
     
     # 2. AICON (전체 공지)
     process_site("https://aicon.skku.edu/aicon/notice.do", 
@@ -93,3 +93,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
