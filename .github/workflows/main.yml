@@ -1,0 +1,29 @@
+name: SKKU Notice Bot Automation
+
+on:
+  schedule:
+    - cron: '0 0,4,9 * * *' # KST 09:00, 13:00, 18:00
+  workflow_dispatch:      # 우리가 원할 때 수동 실행 버튼 생성
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4
+      - name: Run Bot
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }} # 비밀 주소 연결
+        run: python skku_bot.py
+      - name: Update last_notice.txt
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add last_notice.txt
+          git commit -m "Update last notice ID" || exit 0
+          git push
