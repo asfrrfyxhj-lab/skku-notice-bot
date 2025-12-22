@@ -30,11 +30,8 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add last_notice_*.txt  # 모든 txt 파일을 한꺼번에 추가
-          git commit -m "Update last notice IDs" || exit 0
-          git push
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git add last_notice.txt
-          git commit -m "Update last notice ID" || exit 0
+          # 최신 상태를 먼저 가져와서 합칩니다 (rebase 방식)
+          git pull --rebase origin main  
+          git add last_notice_*.txt
+          git commit -m "Update notice IDs" || exit 0
           git push
