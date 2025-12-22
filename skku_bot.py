@@ -10,7 +10,7 @@ HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 # 1. 메인 공지 설정
 URL_MAIN = "https://www.skku.edu/skku/campus/skk_comm/notice01.do"
 DB_MAIN = "last_notice_main.txt"
-KEYWORDS_MAIN = ["장학", "AI", "데이터", "공고", "채용"]
+KEYWORDS_MAIN = ["장학", "AI", "대학원", "근로", "참여자", "인공지능", "성적", "수강신청"]]
 
 # 2. AICON 공지 설정
 URL_AICON = "https://aicon.skku.edu/aicon/notice.do"
@@ -82,3 +82,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
