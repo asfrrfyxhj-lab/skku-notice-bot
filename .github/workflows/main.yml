@@ -2,7 +2,9 @@ name: SKKU Notice Bot Automation
 
 on:
   schedule:
-    - cron: '0 0,4,9 * * *' # KST 09:00, 13:00, 18:00
+    # 정각이 아닌 '23분'이나 '47분'처럼 아무도 안 쓸 법한 분 단위 선택
+    # 3시간마다 체크하여 건너뛰기 방지 (KST 기준 09:23, 12:23, 15:23 ...)
+    - cron: '23 */3 * * *'
   workflow_dispatch:      # 우리가 원할 때 수동 실행 버튼 생성
 
 jobs:
