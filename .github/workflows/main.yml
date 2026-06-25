@@ -24,10 +24,6 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: python skku_bot.py
-      - name: Run Bot
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }} # 비밀 주소 연결
-        run: python skku_bot.py
       - name: Update DB Files
         run: |
           git config --global user.name "GitHub Actions"
