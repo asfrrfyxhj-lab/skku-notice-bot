@@ -30,6 +30,41 @@ def get_notices(url):
     except Exception as e:
         print(f"[!] {url} 크롤링 에러: {e}")
         return []
+        
+def get_notices_kaist(url):
+    try:
+        response = requests.get(url, headers=HEADERS, timeout=10)
+        response.encoding = 'utf-8'
+        soup = BeautifulSoup(response.text, 'html.parser')
+        base = url.split('?')[0]
+        notices = []
+        seen = set()
+        for a in soup.select('a[href*="uid="]'):
+            href = a.get('href', '')
+            match = re.search(r'uid=(\d+)', href)
+            if not match:
+                continue
+            num = int(match.group(1))
+            if num in seen:
+                continue
+            title = a.get_text(strip=True)
+            if not title:
+                continue
+            seen.add(num)
+            if href.startswith('http'):
+                link = href
+            elif href.startswith('?'):
+                link = base + href
+            elif href.startswith('/'):
+                link = "https://gsai.kaist.ac.kr" + href
+            else:
+                link = base + href
+            notices.append({'num': num, 'title': title, 'link': link})
+        notices.sort(key=lambda x: x['num'], reverse=True)
+        return notices
+    except Exception as e:
+        print(f"[!] {url} 크롤링 에러: {e}")
+        return []
 
 def send_discord_embed(webhook_url, title, link, site_name, color):
     """디스코드 임베드 메시지를 전송하는 함수"""
@@ -54,8 +89,8 @@ def send_discord_embed(webhook_url, title, link, site_name, color):
     }
     requests.post(webhook_url, json=payload)
 
-def process_site(url, db_file, site_name, webhook_url, color, keywords=None):
-    notices = get_notices(url)
+def process_site(url, db_file, site_name, webhook_url, color, keywords=None, parser=get_notices):
+    notices = parser(url)
     if not notices: return
 
     last_num = 0
@@ -82,7 +117,8 @@ def main():
     # 성대 상징색(녹색 계열): 32768, 금색 계열: 16761035
     COLOR_MAIN = 32768
     COLOR_AICON = 16761035
-
+    COLOR_KAIST = 16785   # 아무 색이나
+    
     # 1. 성대 메인
     process_site("https://www.skku.edu/skku/campus/skk_comm/notice01.do", 
                  "last_notice_main.txt", "성대메인", WEBHOOK_MAIN, COLOR_MAIN, None)
@@ -90,6 +126,11 @@ def main():
     # 2. AICON (전체 공지)
     process_site("https://aicon.skku.edu/aicon/notice.do", 
                  "last_notice_aicon.txt", "AICON", WEBHOOK_MAIN, COLOR_AICON, None)
+
+    # 3. KAIST 김재철AI대학원
+    process_site("https://gsai.kaist.ac.kr/notice/?lang=ko",
+                 "last_notice_kaist.txt", "KAIST AI", WEBHOOK_MAIN, COLOR_KAIST,
+                 keywords=None, parser=get_notices_kaist)
 
 if __name__ == "__main__":
     main()
