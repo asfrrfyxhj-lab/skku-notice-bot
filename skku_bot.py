@@ -36,35 +36,40 @@ def get_notices_kaist(url):
         response = requests.get(url, headers=HEADERS, timeout=10)
         response.encoding = 'utf-8'
         soup = BeautifulSoup(response.text, 'html.parser')
-        base = url.split('?')[0]
         notices = []
-        seen = set()
-        for a in soup.select('a[href*="uid="]'):
-            href = a.get('href', '')
-            match = re.search(r'uid=(\d+)', href)
-            if not match:
-                continue
-            num = int(match.group(1))
-            if num in seen:
-                continue
+        for a in soup.select('.entry-title a'):
             title = a.get_text(strip=True)
-            if not title:
-                continue
-            seen.add(num)
-            if href.startswith('http'):
-                link = href
-            elif href.startswith('?'):
-                link = base + href
-            elif href.startswith('/'):
-                link = "https://gsai.kaist.ac.kr" + href
-            else:
-                link = base + href
-            notices.append({'num': num, 'title': title, 'link': link})
-        notices.sort(key=lambda x: x['num'], reverse=True)
+            link = a.get('href', '')
+            if title and link:
+                notices.append({'title': title, 'link': link})
         return notices
     except Exception as e:
         print(f"[!] {url} 크롤링 에러: {e}")
         return []
+
+def process_site_kaist(url, db_file, site_name, webhook_url, color, keywords=None):
+    notices = get_notices_kaist(url)
+    if not notices: return
+
+    # 이미 본 링크 목록 불러오기
+    seen_links = set()
+    if os.path.exists(db_file):
+        with open(db_file, 'r', encoding='utf-8') as f:
+            seen_links = set(line.strip() for line in f if line.strip())
+
+    new_notices = [n for n in notices if n['link'] not in seen_links]
+    print(f"[*] {site_name} 새 공지: {len(new_notices)}개")
+
+    for n in reversed(new_notices):
+        if keywords is None or any(kw in n['title'] for kw in keywords):
+            send_discord_embed(webhook_url, n['title'], n['link'], site_name, color)
+            print(f"[+] 임베드 알림 전송: {n['title']}")
+
+    # 현재 페이지의 모든 링크를 저장 (다음 실행 때 중복 방지)
+    # 무한정 쌓이지 않게 최근 200개만 유지
+    all_links = [n['link'] for n in notices] + list(seen_links)
+    with open(db_file, 'w', encoding='utf-8') as f:
+        f.write("\n".join(all_links[:200]))
 
 def send_discord_embed(webhook_url, title, link, site_name, color):
     """디스코드 임베드 메시지를 전송하는 함수"""
@@ -128,9 +133,8 @@ def main():
                  "last_notice_aicon.txt", "AICON", WEBHOOK_MAIN, COLOR_AICON, None)
 
     # 3. KAIST 김재철AI대학원
-    process_site("https://gsai.kaist.ac.kr/notice/?lang=ko",
-                 "last_notice_kaist.txt", "KAIST AI", WEBHOOK_MAIN, COLOR_KAIST,
-                 keywords=None, parser=get_notices_kaist)
+    process_site_kaist("https://gsai.kaist.ac.kr/notice/?lang=ko",
+                       "last_notice_kaist.txt", "KAIST AI", WEBHOOK_MAIN, COLOR_KAIST)
 
 if __name__ == "__main__":
     main()
