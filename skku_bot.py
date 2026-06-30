@@ -122,7 +122,10 @@ def main():
     # 성대 상징색(녹색 계열): 32768, 금색 계열: 16761035
     COLOR_MAIN = 32768
     COLOR_AICON = 16761035
-    COLOR_KAIST = 16785   # 아무 색이나
+    COLOR_KAIST = 16785   
+    COLOR_CSE  = 3447003    # 파랑
+    COLOR_SME  = 15105570   # 주황
+    COLOR_AI   = 10181046   # 보라
     
     # 1. 성대 메인
     process_site("https://www.skku.edu/skku/campus/skk_comm/notice01.do", 
@@ -135,6 +138,19 @@ def main():
     # 3. KAIST 김재철AI대학원
     process_site_kaist("https://gsai.kaist.ac.kr/notice/?lang=ko",
                        "last_notice_kaist.txt", "KAIST AI", WEBHOOK_MAIN, COLOR_KAIST)
+
+
+    # 4. 소프트웨어학과 (CSE)
+    process_site("https://cse.skku.edu/cse/notice.do",
+                 "last_notice_cse.txt", "소프트웨어학과", WEBHOOK_MAIN, COLOR_CSE, None)
+
+    # 5. 산업공학과 (IESYS)
+    process_site("https://sme.skku.edu/iesys/notice.do",
+                 "last_notice_sme.txt", "산업공학과", WEBHOOK_MAIN, COLOR_SME, None)
+
+    # 6. 인공지능학과 (AI)
+    process_site("https://ai.skku.edu/ai/community/notice.do?mode=list&articleLimit=10&article.offset=0",
+                 "last_notice_ai.txt", "인공지능학과", WEBHOOK_MAIN, COLOR_AI, None)
 
 if __name__ == "__main__":
     main()
