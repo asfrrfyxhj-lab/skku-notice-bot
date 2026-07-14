@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import os
 import re
 from datetime import datetime
+from urllib.parse import urljoin
 
 # --- 설정값 ---
 WEBHOOK_MAIN = os.getenv("DISCORD_WEBHOOK") # 기존 이름 유지
@@ -20,7 +21,7 @@ def get_notices(url):
             if not title_tag: continue
             title = title_tag.text.strip()
             href = title_tag.get('href', '')
-            link = url.split('.do')[0] + ".do" + href if ".do" in href else url + href
+            link = urljoin(url, href)
             match = re.search(r'articleNo=(\d+)', href)
             if match:
                 num = int(match.group(1))
